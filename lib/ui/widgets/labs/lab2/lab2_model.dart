@@ -28,7 +28,6 @@ class Lab2Model extends ChangeNotifier {
   bool _readOnly = true;
   List<String> result = [];
 
-  // bool isCompleted = false;
   final textController = TextEditingController();
 
   void initialization() {

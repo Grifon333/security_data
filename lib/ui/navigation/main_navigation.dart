@@ -1,6 +1,8 @@
 import 'package:security_data/library/widgets/inherited/provider.dart';
 import 'package:security_data/ui/widgets/labs/lab2/lab2_model.dart';
 import 'package:security_data/ui/widgets/labs/lab2/lab2_widget.dart';
+import 'package:security_data/ui/widgets/labs/lab3/lab3_model.dart';
+import 'package:security_data/ui/widgets/labs/lab3/lab3_widget.dart';
 import 'package:security_data/ui/widgets/mainScreen.dart';
 import 'package:security_data/ui/widgets/labs/lab1/lab1_widget.dart';
 import 'package:security_data/ui/widgets/labs/lab1/lab1_model.dart';
@@ -9,7 +11,7 @@ class MainNavigationNameRoute {
   static const main = '/';
   static const lab1 = '/lab1';
   static const lab2 = '/lab2';
-  // static const lab3 = '/lab3';
+  static const lab3 = '/lab3';
   // static const lab4 = '/lab4';
   // static const lab5 = '/lab5';
   // static const lab6 = '/lab6';
@@ -28,10 +30,10 @@ class MainNavigation {
       child: const Lab2Widget(),
       create: () => Lab2Model(),
     ),
-    // MainNavigationNameRoute.lab3: (context) => NotifierProvider(
-    //   child: const Lab3Widget(),
-    //   create: () => Lab3Model(),
-    // ),
+    MainNavigationNameRoute.lab3: (context) => NotifierProvider(
+      child: const Lab3Widget(),
+      create: () => Lab3Model(),
+    ),
     // MainNavigationNameRoute.lab4: (context) => NotifierProvider(
     //   child: const Lab4Widget(),
     //   create: () => Lab4Model(),
