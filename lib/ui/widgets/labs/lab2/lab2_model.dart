@@ -25,6 +25,11 @@ class Lab2Model extends ChangeNotifier {
   late Stopwatch timeSymbol;
   bool isCorrect = true;
   int lengthEnterString = 0;
+  bool _readOnly = true;
+  List<String> result = [];
+
+  // bool isCompleted = false;
+  final textController = TextEditingController();
 
   void initialization() {
     timeAll = Stopwatch()..start();
@@ -36,17 +41,29 @@ class Lab2Model extends ChangeNotifier {
       (index) => List.filled(words[index].length, 0),
     );
     timeWords = List.filled(words.length, 0);
+    timeText = 0;
+    iPos = 0;
+    jPos = 0;
+
+    isCorrect = true;
+    lengthEnterString = 0;
+    _readOnly = false;
+    result.clear();
   }
 
   void addSymbol(String str) {
     if (str.length <= lengthEnterString) {
       if (jPos > 0) {
         jPos--;
-      } else {
+      } else if (iPos > 0) {
         iPos--;
         jPos = words[iPos].length - 1;
       }
-      lengthEnterString--;
+      lengthEnterString = str.length;
+
+      isCorrect =
+          text.contains(str) && str.characters.last == text[str.length - 1];
+      notifyListeners();
       return;
     }
     if (str == text) {
@@ -56,11 +73,10 @@ class Lab2Model extends ChangeNotifier {
       int t = timeWord.elapsedMilliseconds;
       timeWords[iPos] = t;
       calculateAllData();
-      // print('Success, time: ${timeAll.elapsedMilliseconds}');
+      _readOnly = true;
     }
     lengthEnterString = str.length;
     String char = str.characters.last;
-    // print('$char: ${char.codeUnits.first}');
 
     if (checkChar(char)) {
       if (char == words[iPos].split('')[jPos]) {
@@ -75,11 +91,15 @@ class Lab2Model extends ChangeNotifier {
     } else if (char.codeUnits.first == 32) {
       timeWord.stop();
       int t = timeWord.elapsedMilliseconds;
-      timeWords[iPos++] = t;
+      timeWords[iPos] = t;
       jPos = 0;
       timeWord = Stopwatch()..start();
+      if (iPos + 1 < words.length) {
+        iPos++;
+      }
     }
-    isCorrect = text.contains(str);
+    isCorrect =
+        text.contains(str) && str.characters.last == text[str.length - 1];
 
     // if (checkChar(char) && char == words[iPos].split('')[jPos]) {
     //   timeSymbol.stop();
@@ -130,6 +150,7 @@ class Lab2Model extends ChangeNotifier {
     double Tm, Tp, S = 0;
     List<double> Ts;
     double sum = 0;
+
     Tm = timeText / n;
 
     Ts = List.filled(words.length, 0);
@@ -157,9 +178,33 @@ class Lab2Model extends ChangeNotifier {
     }
     S /= k;
 
+    result.clear();
+    result.add('Input speed: \n${round(Tm)}');
+    result.add('Speed of entering each word: \n${Ts.map((e) => round(e))}');
+    result.add('Average time interval between words: \n${round(Tp)}');
+    result.add('Degree of coherence of the set: \n${round(S)}');
+    notifyListeners();
+
     print('Tm: $Tm');
     print('Ts: $Ts');
     print('Tp: $Tp');
     print('S: $S');
+  }
+
+  void start() {
+    initialization();
+    textController.clear();
+    notifyListeners();
+  }
+
+  void end() {
+    textController.clear();
+    notifyListeners();
+  }
+
+  get readOnly => _readOnly;
+
+  double round(double value) {
+    return (value * 1000).roundToDouble() / 1000;
   }
 }

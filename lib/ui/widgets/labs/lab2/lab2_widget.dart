@@ -7,9 +7,18 @@ class Lab2Widget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = NotifierProvider.watch<Lab2Model>(context);
+    if (model == null) return const SizedBox.shrink();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lab2'),
+        actions: [
+          IconButton(
+            onPressed: () => model.end(),
+            icon: const Icon(Icons.refresh),
+          )
+        ],
       ),
       body: const _BodyWidget(),
     );
@@ -21,15 +30,16 @@ class _BodyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.read<Lab2Model>(context);
-    if (model == null) return const SizedBox.shrink();
-    model.initialization();
+    // final model = NotifierProvider.read<Lab2Model>(context);
+    // if (model == null) return const SizedBox.shrink();
+    // model.initialization();
 
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
         children: const [
           _TextFieldWidget(),
+          SizedBox(height: 10),
           _ShowResultsWidget(),
         ],
       ),
@@ -37,9 +47,14 @@ class _BodyWidget extends StatelessWidget {
   }
 }
 
-class _TextFieldWidget extends StatelessWidget {
+class _TextFieldWidget extends StatefulWidget {
   const _TextFieldWidget({Key? key}) : super(key: key);
 
+  @override
+  State<_TextFieldWidget> createState() => _TextFieldWidgetState();
+}
+
+class _TextFieldWidgetState extends State<_TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     final model = NotifierProvider.watch<Lab2Model>(context);
@@ -49,12 +64,13 @@ class _TextFieldWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Text',
+        Text(
+          '\"${model.text}\"',
           style: textStyle,
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 10),
         TextField(
+          controller: model.textController,
           onChanged: (value) => model.addSymbol(value),
           style: const TextStyle(
             color: Colors.black54,
@@ -74,6 +90,8 @@ class _TextFieldWidget extends StatelessWidget {
               isCollapsed: true,
               contentPadding: const EdgeInsets.all(10)),
           autocorrect: false,
+          readOnly: model.readOnly,
+          maxLines: 2,
         ),
       ],
     );
@@ -88,9 +106,37 @@ class _ShowResultsWidget extends StatelessWidget {
     final model = NotifierProvider.watch<Lab2Model>(context);
     if (model == null) return const SizedBox.shrink();
 
-    return ElevatedButton(
-      onPressed: () => model.showTime(),
-      child: const Text('Show time'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              onPressed: () => model.start(),
+              child: const Text('Start'),
+            ),
+            ElevatedButton(
+              onPressed: () => model.showTime(),
+              child: const Text('Show time'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Result',
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          model.result.join('\n'),
+          style: const TextStyle(
+            fontSize: 16,
+          ),
+        ),
+      ],
     );
   }
 }
