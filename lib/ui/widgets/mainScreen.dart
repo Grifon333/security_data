@@ -54,7 +54,7 @@ class _ListButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final count = MainNavigation().routes.length - 1;
-    const all = 8;
+    const all = 7;
 
     return SizedBox(
       height: MediaQuery.of(context).size.height - 200,

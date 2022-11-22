@@ -11,7 +11,7 @@ class Lab3Widget extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Lab3'),
       ),
-      body: _BodyWidget(),
+      body: const _BodyWidget(),
     );
   }
 }
