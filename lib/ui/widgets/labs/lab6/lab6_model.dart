@@ -7,83 +7,93 @@ class Lab6Model extends ChangeNotifier {
   int q = 0;
   int n = 0;
   int f = 0;
-  int e = 0;
-  int d = 0;
-  int mcd = 0;
-  String msg = 'Hello';
 
-  String createEDS() {
-    List<String> decodeMsg = [];
-    for(int i = 0; i < msg.length; i++) {
-      int hash = msg[i].hashCode;
-      int sign = modPow(hash, d, n);
-      int decodeSign = modPow(sign, e, n);
-      decodeMsg.add(String.fromCharCode(decodeSign));
-      // print(decodeMsg);
-      print('sign: $sign');
-      print('decodeSign: $decodeSign');
-    }
-    return decodeMsg.join();
+  // close key
+  int _d = 0;
+
+  // open key
+  int e = 0;
+  late String _msg;
+  late String _result;
+  final controller = TextEditingController();
+
+  // d: 125388283
+  // e: 357461587
+  // n: 272007821
+
+  void initialization() {
+    _msg = '';
+    _result = '';
+    _algorithmRSA();
+    print('d: $_d');
+    print('e: $e');
+    print('n: $n');
   }
 
-  void algorithmRSA() {
-    p = createSimpleNumber();
-    q = createSimpleNumber();
+  void encode() {
+    List<String> list = [];
+    for (int i = 0; i < _msg.length; i++) {
+      int hash = _msg[i].codeUnits.first;
+      int sign = hash.modPow(_d, n);
+      list.add(String.fromCharCode(sign));
+    }
+    _result = list.join();
+    print(_result);
+    notifyListeners();
+  }
 
+  void decode() {
+    List<String> list = [];
+    for (int i = 0; i < _msg.length; i++) {
+      int hash = _msg[i].codeUnits.first;
+      int sign = hash.modPow(e, n);
+      list.add(String.fromCharCode(sign));
+    }
+    _result = list.join();
+    print(_result);
+    notifyListeners();
+  }
+
+  void _algorithmRSA() {
+    p = _createSimpleNumber();
+    q = _createSimpleNumber();
     n = p * q;
     f = (p - 1) * (q - 1);
 
-    e = createSimpleNumber(max: n);
-    if (euclid() || mcd != 1) {
+    _d = _createSimpleNumber(max: f);
+    while (_gst(f, _d) != 1) {
+      _d++;
+    }
+    e = _createSimpleNumber(max: n);
+    while ((e * _d) % f != 1) {
       e++;
     }
-    // while (euclid() || mcd != 1) {
-    //   e++;
-    //   print(e);
-    // }
   }
 
-  bool euclid() {
-    int x1 = 1, x2 = 0, x3 = f;
-    int y1 = 0, y2 = 1, y3 = e;
-    while (y3 != 1) {
-      if (y3 == 0) {
-        mcd = x3;
-        return false;
+  int _gst(int a, int b) {
+    while (a != 0 && b != 0) {
+      if (a > b) {
+        a = a % b;
+      } else {
+        b = b % a;
       }
-      int q = x3 ~/ y3;
-      int t1 = x1 - q * y1;
-      int t2 = x2 - q * y2;
-      int t3 = x3 - q * y3;
-      x1 = y1;
-      x2 = y2;
-      x3 = y3;
-      y1 = t1;
-      y2 = t2;
-      y3 = t3;
     }
-    mcd = y3;
-    d = y2;
-    if (y2 < 0) {
-      d += f;
-    }
-    return true;
+    return a + b;
   }
 
-  int createSimpleNumber({int? max}) {
+  int _createSimpleNumber({int? max}) {
     final rand = Random();
-    BigInt m = BigInt.from(max ?? 256);
+    int m = max ?? 65536;
     int number = 0;
     bool isSimple = false;
     do {
-      number = rand.nextInt(m.toInt());
-      isSimple = testMillerRabin(number, 1000);
+      number = rand.nextInt(m);
+      isSimple = _testMillerRabin(number, 100);
     } while (isSimple == false);
     return number;
-    // notifyListeners();
   }
 
-  bool testMillerRabin(int n, int k) {
+  bool _testMillerRabin(int n, int k) {
     final rand = Random();
     if (n == 2 || n == 3 || n == 5 || n == 7 || n == 11) {
       return true;
@@ -105,10 +115,10 @@ class Lab6Model extends ChangeNotifier {
 
     for (int i = 0; i < k; i++) {
       int a = 2 + rand.nextInt(n - 2);
-      int x = modPow(a, d, n);
+      int x = a.modPow(d, n);
       if (x == 1 || x == n - 1) continue;
       for (int j = 0; j < s - 1; j++) {
-        x = modPow(x, 2, n);
+        x = x.modPow(2, n);
         if (x == 1) {
           return false;
         }
@@ -122,26 +132,14 @@ class Lab6Model extends ChangeNotifier {
     return true;
   }
 
-  int modPow(int a, int b, int n) {
-    // int d = 1;
-    // List<int> bytes = intToBytes(b);
-    // for (int i = bytes.length - 1; i >= 0; i--) {
-    //   d = (d * d) % n;
-    //   if (bytes[i] == 1) {
-    //     d = (d * a) % n;
-    //   }
-    // }
-    // return d;
-
-    return a.modPow(b, n);
+  void setMsg(String val) {
+    _msg = val;
   }
 
-  List<int> intToBytes(int n) {
-    List<int> bytes = [];
-    while (n >= 1) {
-      bytes.add(n % 2);
-      n ~/= 2;
-    }
-    return bytes.reversed.toList();
+  String get result => _result;
+
+  void reset() {
+    controller.clear();
+    notifyListeners();
   }
 }
